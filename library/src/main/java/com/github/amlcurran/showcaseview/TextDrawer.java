@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.text.DynamicLayout;
 import android.text.Layout;
 import android.text.SpannableString;
@@ -38,7 +39,6 @@ class TextDrawer {
     private final ShowcaseAreaCalculator calculator;
     private final float padding;
     private final float actionBarOffset;
-
     private CharSequence mTitle, mDetails;
     private float[] mBestTextPosition = new float[3];
     private DynamicLayout mDynamicTitleLayout;
@@ -46,6 +46,8 @@ class TextDrawer {
     private TextAppearanceSpan mTitleSpan;
     private TextAppearanceSpan mDetailSpan;
     private boolean hasRecalculated;
+    private Typeface titleTypeface = null;
+    private Typeface textTypeface = null;
 
     public TextDrawer(Resources resources, ShowcaseAreaCalculator calculator, Context context) {
         padding = resources.getDimension(R.dimen.text_padding);
@@ -64,6 +66,13 @@ class TextDrawer {
     public void draw(Canvas canvas) {
         if (shouldDrawText()) {
             float[] textPosition = getBestTextPosition();
+
+            if (titleTypeface != null) {
+                titlePaint.setTypeface(titleTypeface);
+            }
+            if (textTypeface != null) {
+                textPaint.setTypeface(textTypeface);
+            }
 
             if (!TextUtils.isEmpty(mTitle)) {
                 canvas.save();
@@ -124,67 +133,67 @@ class TextDrawer {
      */
     public void calculateTextPosition(int canvasW, int canvasH, ShowcaseView showcaseView, boolean shouldCentreText) {
 
-    	Rect showcase = showcaseView.hasShowcaseView() ?
-    			calculator.getShowcaseRect() :
-    			new Rect();
-    	
-    	int[] areas = new int[4]; //left, top, right, bottom
-    	areas[0] = showcase.left * canvasH;
-    	areas[1] = showcase.top * canvasW;
-    	areas[2] = (canvasW - showcase.right) * canvasH;
-    	areas[3] = (canvasH - showcase.bottom) * canvasW;
-    	
-    	int largest = 0;
-    	for(int i = 1; i < areas.length; i++) {
-    		if(areas[i] > areas[largest])
-    			largest = i;
-    	}
-    	
-    	// Position text in largest area
-    	switch(largest) {
-    	case 0:
-    		mBestTextPosition[0] = padding;
-    		mBestTextPosition[1] = padding;
-    		mBestTextPosition[2] = showcase.left - 2 * padding;
-    		break;
-    	case 1:
-    		mBestTextPosition[0] = padding;
-    		mBestTextPosition[1] = padding + actionBarOffset;
-    		mBestTextPosition[2] = canvasW - 2 * padding;
-    		break;
-    	case 2:
-    		mBestTextPosition[0] = showcase.right + padding;
-    		mBestTextPosition[1] = padding;
-    		mBestTextPosition[2] = (canvasW - showcase.right) - 2 * padding;
-    		break;
-    	case 3:
-    		mBestTextPosition[0] = padding;
-    		mBestTextPosition[1] = showcase.bottom + padding;
-    		mBestTextPosition[2] = canvasW - 2 * padding;
-    		break;
-    	}
-    	if(shouldCentreText) {
-	    	// Center text vertically or horizontally
-	    	switch(largest) {
-	    	case 0:
-	    	case 2:
-	    		mBestTextPosition[1] += canvasH / 4;
-	    		break;
-	    	case 1:
-	    	case 3:
-	    		mBestTextPosition[2] /= 2;
-	    		mBestTextPosition[0] += canvasW / 4;
-	    		break;
-	    	} 
-    	} else {
-    		// As text is not centered add actionbar padding if the text is left or right
-	    	switch(largest) {
-	    		case 0:
-	    		case 2:
-	    			mBestTextPosition[1] += actionBarOffset;
-	    			break;
-	    	}
-    	}
+        Rect showcase = showcaseView.hasShowcaseView() ?
+                calculator.getShowcaseRect() :
+                new Rect();
+        
+        int[] areas = new int[4]; //left, top, right, bottom
+        areas[0] = showcase.left * canvasH;
+        areas[1] = showcase.top * canvasW;
+        areas[2] = (canvasW - showcase.right) * canvasH;
+        areas[3] = (canvasH - showcase.bottom) * canvasW;
+        
+        int largest = 0;
+        for(int i = 1; i < areas.length; i++) {
+            if(areas[i] > areas[largest])
+                largest = i;
+        }
+        
+        // Position text in largest area
+        switch(largest) {
+        case 0:
+            mBestTextPosition[0] = padding;
+            mBestTextPosition[1] = padding;
+            mBestTextPosition[2] = showcase.left - 2 * padding;
+            break;
+        case 1:
+            mBestTextPosition[0] = padding;
+            mBestTextPosition[1] = padding + actionBarOffset;
+            mBestTextPosition[2] = canvasW - 2 * padding;
+            break;
+        case 2:
+            mBestTextPosition[0] = showcase.right + padding;
+            mBestTextPosition[1] = padding;
+            mBestTextPosition[2] = (canvasW - showcase.right) - 2 * padding;
+            break;
+        case 3:
+            mBestTextPosition[0] = padding;
+            mBestTextPosition[1] = showcase.bottom + padding;
+            mBestTextPosition[2] = canvasW - 2 * padding;
+            break;
+        }
+        if(shouldCentreText) {
+            // Center text vertically or horizontally
+            switch(largest) {
+            case 0:
+            case 2:
+                mBestTextPosition[1] += canvasH / 4;
+                break;
+            case 1:
+            case 3:
+                mBestTextPosition[2] /= 2;
+                mBestTextPosition[0] += canvasW / 4;
+                break;
+            } 
+        } else {
+            // As text is not centered add actionbar padding if the text is left or right
+            switch(largest) {
+                case 0:
+                case 2:
+                    mBestTextPosition[1] += actionBarOffset;
+                    break;
+            }
+        }
 
         hasRecalculated = true;
     }
@@ -213,5 +222,21 @@ class TextDrawer {
 
     public boolean shouldDrawText() {
         return !TextUtils.isEmpty(mTitle) || !TextUtils.isEmpty(mDetails);
+    }
+
+    public Typeface getTextTypeface() {
+        return textTypeface;
+    }
+
+    public void setTextTypeface(Typeface textTypeface) {
+        this.textTypeface = textTypeface;
+    }
+
+    public Typeface getTitleTypeface() {
+        return titleTypeface;
+    }
+
+    public void setTitleTypeface(Typeface titleTypeface) {
+        this.titleTypeface = titleTypeface;
     }
 }

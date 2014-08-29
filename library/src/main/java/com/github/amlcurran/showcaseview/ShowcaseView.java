@@ -24,6 +24,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
+import android.graphics.Typeface;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -183,7 +184,7 @@ public class ShowcaseView extends RelativeLayout
     private void updateBitmap() {
         if (bitmapBuffer == null || haveBoundsChanged()) {
             if(bitmapBuffer != null)
-        		bitmapBuffer.recycle();
+                bitmapBuffer.recycle();
             bitmapBuffer = Bitmap.createBitmap(getMeasuredWidth(), getMeasuredHeight(), Bitmap.Config.ARGB_8888);
 
         }
@@ -360,6 +361,16 @@ public class ShowcaseView extends RelativeLayout
         textDrawer.setContentText(text);
     }
 
+    public void setContentTitle(CharSequence title, Typeface typeface) {
+        textDrawer.setTitleTypeface(typeface);
+        setContentTitle(title);
+    }
+
+    public void setContentText(CharSequence text, Typeface typeface) {
+        textDrawer.setTextTypeface(typeface);
+        setContentText(text);
+    }
+
     private void setScaleMultiplier(float scaleMultiplier) {
         this.scaleMultiplier = scaleMultiplier;
     }
@@ -414,7 +425,9 @@ public class ShowcaseView extends RelativeLayout
         public Builder setContentTitle(int resId) {
             return setContentTitle(activity.getString(resId));
         }
-
+        public Builder setContentTitle(int resId, Typeface typeface) {
+            return setContentTitle(activity.getString(resId), typeface);
+        }
         /**
          * Set the title text shown on the ShowcaseView.
          */
@@ -422,14 +435,19 @@ public class ShowcaseView extends RelativeLayout
             showcaseView.setContentTitle(title);
             return this;
         }
-
+        public Builder setContentTitle(CharSequence title, Typeface typeface) {
+            showcaseView.setContentTitle(title, typeface);
+            return this;
+        }
         /**
          * Set the descriptive text shown on the ShowcaseView.
          */
         public Builder setContentText(int resId) {
             return setContentText(activity.getString(resId));
         }
-
+        public Builder setContentText(int resId, Typeface typeface) {
+            return setContentText(activity.getString(resId), typeface);
+        }
         /**
          * Set the descriptive text shown on the ShowcaseView.
          */
@@ -437,7 +455,10 @@ public class ShowcaseView extends RelativeLayout
             showcaseView.setContentText(text);
             return this;
         }
-
+        public Builder setContentText(CharSequence text, Typeface typeface) {
+            showcaseView.setContentText(text, typeface);
+            return this;
+        }
         /**
          * Set the target of the showcase.
          *
